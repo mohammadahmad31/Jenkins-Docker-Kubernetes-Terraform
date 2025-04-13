@@ -31,33 +31,44 @@ pipeline {
             }
         }
 
-        stage('Azure Login') {
+       stage('Terraform Init') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'),
-                    string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET'),
-                    string(credentialsId: 'AZURE_TENANT_ID', variable: 'AZURE_TENANT_ID'),
-                    string(credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZURE_SUBSCRIPTION_ID')
-                ]) {
-                    bat '''
-                        az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% --tenant %AZURE_TENANT_ID%
-                        az account set --subscription %AZURE_SUBSCRIPTION_ID%
-                    '''
+                withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
+                    bat """
+                    echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
+                    cd %TF_WORKING_DIR%
+                    echo "Initializing Terraform..."
+                    terraform init
+                    """
                 }
             }
         }
 
-        stage('Terraform Init & Apply') {
-            steps {
-                dir("${TF_WORKING_DIR}") {
-                    bat '''
-                        terraform init
-                        terraform apply -auto-approve
-                    '''
-                }
-            }
+        stage('Terraform Plan') {
+    steps {
+        withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
+            bat """
+            echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
+            cd %TF_WORKING_DIR%
+            terraform plan -out=tfplan
+            """
         }
+    }
+}
 
+
+        stage('Terraform Apply') {
+    steps {
+        withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS_ID)]) {
+            bat """
+            echo "Navigating to Terraform Directory: %TF_WORKING_DIR%"
+            cd %TF_WORKING_DIR%
+            echo "Applying Terraform Plan..."
+            terraform apply -auto-approve tfplan
+            """
+        }
+    }
+}
         stage('Login to ACR') {
             steps {
                 bat "az acr login --name %ACR_NAME%"
