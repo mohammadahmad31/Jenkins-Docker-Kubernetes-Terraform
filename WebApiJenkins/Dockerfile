@@ -8,7 +8,7 @@ USER app
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG configuration=Release
 WORKDIR /src
-COPY ["WebApiJenkins.csproj", "."]
+COPY ["WebApiJenkins.csproj", "./"]
 RUN dotnet restore "WebApiJenkins.csproj"
 COPY . .
 WORKDIR "/src/."
