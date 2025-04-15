@@ -96,10 +96,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ All stages completed successfully!'
+            echo 'All stages completed successfully!'
         }
         failure {
-            echo '❌ Build failed.'
+            echo 'Build failed.'
         }
     }
 }
