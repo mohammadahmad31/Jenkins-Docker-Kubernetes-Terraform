@@ -7,8 +7,8 @@ pipeline {
         ACR_LOGIN_SERVER = "${ACR_NAME}.azurecr.io"
         IMAGE_NAME = 'webapidocker1'
         IMAGE_TAG = 'latest'
-        RESOURCE_GROUP = 'myResourceGroup'
-        AKS_CLUSTER = 'myAKSCluster'
+        RESOURCE_GROUP = 'myResourceGroup2031'
+        AKS_CLUSTER = 'myAKSCluster2031'
         TF_WORKING_DIR = '.'
     }
 
